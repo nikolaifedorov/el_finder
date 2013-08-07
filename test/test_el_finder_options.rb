@@ -40,4 +40,11 @@ class TestElFinder < Test::Unit::TestCase
     assert_equal 1073741824, @elfinder.send(:upload_max_size_in_bytes)
   end
 
+  def test_from_hash_method
+    @elfinder.options = {
+      :upload_max_size => '1T'
+    }
+    assert_equal 1099511627776, @elfinder.send(:upload_max_size_in_bytes)
+  end
+
 end

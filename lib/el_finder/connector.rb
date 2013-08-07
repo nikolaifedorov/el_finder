@@ -437,7 +437,7 @@ module ElFinder
     #
     def upload_max_size_in_bytes
       bytes = @options[:upload_max_size]
-      if bytes.is_a?(String) && bytes.strip =~ /(\d+)([KMG]?)/
+      if bytes.is_a?(String) && bytes.strip =~ /(\d+)([KMGT]?)/
         bytes = $1.to_i
         unit = $2
         case unit
@@ -447,6 +447,8 @@ module ElFinder
             bytes *= 1024 * 1024
           when 'G'
             bytes *= 1024 * 1024 * 1024
+          when 'T'
+            bytes *= 1024 * 1024 * 1024 * 1024
         end
       end
       bytes.to_i
