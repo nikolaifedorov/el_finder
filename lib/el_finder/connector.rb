@@ -9,6 +9,8 @@ module ElFinder
   # Represents ElFinder connector on Rails side.
   class Connector
 
+    DRIVER_ID = "l"
+
     # Valid commands to run.
     # @see #run
     VALID_COMMANDS = %w[archive duplicate edit extract mkdir mkfile open paste ping read rename resize rm tmb upload]
@@ -32,6 +34,7 @@ module ElFinder
       :thumbs_directory => '.thumbs',
       :thumbs_size => 48,
       :thumbs_at_once => 5,
+      :volume_id => DRIVER_ID
     }
 
     # Initializes new instance.
@@ -48,6 +51,8 @@ module ElFinder
       raise(ArgumentError, "Image Handler is invalid") unless image_handler.nil? || ([:size, :resize, :thumbnail].all?{|m| image_handler.respond_to?(m)})
 
       @root = ElFinder::Pathname.new(options[:root])
+
+      @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
       @headers = {}
       @response = {}
@@ -88,13 +93,36 @@ module ElFinder
     end # of run
 
     #
+    def volume_id
+      @options[:volume_id]
+    end
+
+    #
     def to_hash(pathname)
       # note that '=' are removed
-      Base64.urlsafe_encode64(pathname.path.to_s).chomp.tr("=\n", "")
+      hash = Base64.urlsafe_encode64(pathname.path.to_s).chomp.tr("=\n", "")
+      "#{@options[:volume_id]}_#{hash}"
     end # of to_hash
 
     #
+    def connector_id
+      to_hash(@root)
+    end
+
+    #
     def from_hash(hash)
+
+      puts "=========== From  Hash 1 =============="
+      puts "hash = #{hash}"
+      puts "======================================="
+
+      volume_id, hash = hash.split("_")
+      hash = volume_id if hash.nil?
+
+      puts "=========== From  Hash 2 =============="
+      puts "hash = #{hash}"
+      puts "======================================="
+
       # restore missing '='
       len = hash.length % 4
       hash += '==' if len == 1 or len == 2
@@ -120,6 +148,15 @@ module ElFinder
       end
       @options
     end # of options=
+
+    def tree
+      {
+        :name => @options[:home],
+        :hash => to_hash(@root),
+        :dirs => tree_for(@root),
+        :volumeid => @options[:volume_id]
+      }.merge(perms_for(@root))
+    end
 
     ################################################################################
     protected
@@ -151,6 +188,7 @@ module ElFinder
             :name => @options[:home],
             :hash => to_hash(@root),
             :dirs => tree_for(@root),
+            :volumeid => @options[:volume_id]
           }.merge(perms_for(@root))
         end
 
@@ -163,6 +201,7 @@ module ElFinder
             :extract => @options[:extractors].keys,
             :url => @options[:url]
           }
+          @response[:netDrivers] = [:ftp]
         end
 
       else
