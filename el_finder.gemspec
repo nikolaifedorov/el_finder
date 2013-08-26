@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "el_finder"
   s.version     = ElFinder::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Philip Hallstrom"]
+  s.authors     = ["Philip Hallstrom, Nikolai Fedorov"]
   s.email       = ["philip@pjkh.com"]
   s.homepage    = "http://github.com/phallstrom/el_finder"
   s.summary     = %q{elFinder server side connector for Ruby.}
