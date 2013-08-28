@@ -1,5 +1,7 @@
 require 'net/ftp'
 
+# Author::  Nikolai Fedorov (nfedorov)
+
 module ElFinder
 
   module Connector
@@ -52,10 +54,14 @@ module ElFinder
         raise(ArgumentError, "Mime Handler is invalid") unless mime_handler.respond_to?(:for)
         raise(ArgumentError, "Image Handler is invalid") unless image_handler.nil? || ([:size, :resize, :thumbnail].all?{|m| image_handler.respond_to?(m)})
 
-        @root = @options[:root]
+        # @root = @options[:root]
         @ftp = Net::FTP.new(@options[:url])
+        @ftp.passive = true
         @ftp.login(@options[:login], @options[:password])
         @ftp.chdir(@options[:root])
+
+        @root = ::ElFinder::Pathnames::FTP.new(@ftp, @options[:root])
+
         @pwd = @ftp.pwd
 
 
@@ -78,12 +84,13 @@ module ElFinder
 
         if VALID_COMMANDS.include?(@params[:cmd])
 
-          @current = @params[:current] ? from_hash(@params[:current]) : nil
+          # @current = @params[:current] ? from_hash(@params[:current]) : nil
 
-          @target = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
-          if params[:targets]
-            @targets = @params[:targets].map{|t| from_hash(t)}
-          end
+          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
+          @target = ::ElFinder::Pathnames::FTP.new(@ftp, @root, target_params)
+          # if params[:targets]
+          #   @targets = @params[:targets].map{|t| from_hash(t)}
+          # end
 
           send("_#{@params[:cmd]}")
         else
@@ -156,7 +163,7 @@ module ElFinder
         {
           :name => @options[:home],
           :hash => to_hash(@root),
-          :dirs => tree_for(ftp_ls(@root)),
+          :dirs => tree_for(@root.children),
           :volumeid => @options[:volume_id]
         }.merge(perms_for(@root))
       end
@@ -179,19 +186,19 @@ module ElFinder
           return
         end
 
-        children_target_ftp_list = ftp_ls(target)
+        # children_target_ftp_list = ftp_ls(target)
 
         @response[:cwd] = cwd_for(target)
-        @response[:cdc] = children_target_ftp_list.
-                          sort_by{|e| e[:path].to_s.downcase}.
+        @response[:cdc] = target.children.
+                          sort_by{|e| e.basename.downcase}.
                           map{|e| cdc_for(e)}.compact
 
         if @params[:tree]
-          root_ftp_list = ftp_ls(@root)          
+          # root_ftp_list = ftp_ls(@root)          
           @response[:tree] = {
             :name => @options[:home],
             :hash => to_hash(@root),
-            :dirs => tree_for(root_ftp_list),
+            :dirs => tree_for(@root.children),
             :volumeid => @options[:volume_id]
           }.merge(perms_for(@root))
         end
@@ -282,7 +289,7 @@ module ElFinder
       def cwd_for(pathname)
 
         {
-          :name => pathname.to_s,
+          :name => pathname.basename,
           :hash => to_hash(pathname),
           :mime => 'directory',
           :rel => pathname == @root ? @options[:home] : (@options[:home] + '/' + pathname.to_s),
@@ -292,42 +299,41 @@ module ElFinder
       end
 
 
-      def cdc_for(ftp_info)
-        return nil if @options[:thumbs] && ftp_info[:path].to_s == @thumb_directory.to_s
+      def cdc_for(pathname)
+        #return nil if @options[:thumbs] && pathname.to_s == @thumb_directory.to_s
         response = {
-          :name => ftp_info[:path].to_s,
-          :hash => to_hash(ftp_info[:path]),
-          :date => ftp_info[:mod_time],
+          :name => pathname.basename,
+          :hash => to_hash(pathname),
+          :date => pathname.mtime,
         }
-        response.merge! perms_for(ftp_info)
+        response.merge! perms_for(pathname)
 
-        if ftp_info[:type] == 'd'
+        if pathname.dir?
           response.merge!(
-            :size => ftp_info[:size],
+            :size => 0,
             :mime => 'directory'
           )
-        elsif ftp_info[:type] == '-'
+        else
           response.merge!(
-            :size => ftp_info[:size], 
-            :mime => mime_handler.for(ftp_info[:path]),
-            :url => (@options[:url] + '/' + ftp_info[:path].to_s)
+            :size => pathname.filesize, 
+            :mime => mime_handler.for(pathname.basename),
+            :url => (@options[:url] + '/' + pathname.to_s)
           )
 
         end
-
 
         return response
       end
 
       #
-      def tree_for(ftp_list_info)
-        ftp_list_info.select{ |l| l[:type] == 'd' }.
-        sort_by{|e| e[:path].to_s.downcase}.
+      def tree_for(pathnames)
+        pathnames.select{ |l| l.dir? }.
+        sort_by{ |e| e.basename.downcase }.
         map { |child|
-            {:name => child[:path].to_s,
-             :hash => to_hash(child[:path]),
+            {:name => child.basename,
+             :hash => to_hash(child),
              # :dirs => [],
-             :dirs => tree_for(ftp_ls(child[:path])),
+             :dirs => tree_for(child.children),
              # :dirs => tree_for(child.path),
             }.merge(perms_for(child))
         }

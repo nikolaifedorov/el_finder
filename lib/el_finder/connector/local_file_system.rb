@@ -1,3 +1,7 @@
+
+# Author::  Philip Hallstrom (phallstrom)
+# Author::  Nikolai Fedorov (nfedorov)
+
 module ElFinder
 
   module Connector
@@ -46,7 +50,7 @@ module ElFinder
         raise(ArgumentError, "Mime Handler is invalid") unless mime_handler.respond_to?(:for)
         raise(ArgumentError, "Image Handler is invalid") unless image_handler.nil? || ([:size, :resize, :thumbnail].all?{|m| image_handler.respond_to?(m)})
 
-        @root = ElFinder::Pathname.new(options[:root])
+        @root = ElFinder::Pathnames::FileSystem.new(options[:root])
 
         @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
@@ -616,7 +620,7 @@ module ElFinder
 
       #
       def specific_perm_for(pathname, perm)
-        pathname = pathname.path if pathname.is_a?(ElFinder::Pathname)
+        pathname = pathname.path if pathname.is_a?(ElFinder::Pathnames::FileSystem)
         matches = @options[:perms].select{ |k,v| pathname.to_s.send((k.is_a?(String) ? :== : :match), k) }
         if perm == :hidden
           matches.one?{|e| e.last[perm] }

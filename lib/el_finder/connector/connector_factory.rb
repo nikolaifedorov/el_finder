@@ -1,11 +1,14 @@
+# Author::  Nikolai Fedorov (nfedorov)
+
 module ElFinder
   module Connector
   
     class ConnectorFactory
 
       DRIVER_ID_TO_CLASS = {
-        'local' => ElFinder::Connector::LocalFileSystem ,
-        'ftp'   => ElFinder::Connector::FtpStorage
+        'local'   => ElFinder::Connector::LocalFileSystem ,
+        'ftp'     => ElFinder::Connector::FtpStorage,
+        'dropbox' => ElFinder::Connector::DropboxStorage,
       }.freeze
 
 
