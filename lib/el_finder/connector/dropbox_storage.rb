@@ -59,10 +59,10 @@ module ElFinder
         raise(ArgumentError, "Mime Handler is invalid") unless mime_handler.respond_to?(:for)
         raise(ArgumentError, "Image Handler is invalid") unless image_handler.nil? || ([:size, :resize, :thumbnail].all?{|m| image_handler.respond_to?(m)})
 
-        @root = @options[:root]
-        @options[:url] = @root
-
         @dropbox_api = get_dropbox_client(@options[:authorize_code])
+
+        @root = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @options[:root])
+        @options[:url] = @options[:root]
 
         @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
@@ -83,12 +83,12 @@ module ElFinder
 
         if VALID_COMMANDS.include?(@params[:cmd])
 
-          @current = @params[:current] ? from_hash(@params[:current]) : nil
-
-          @target = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
-          if params[:targets]
-            @targets = @params[:targets].map{|t| from_hash(t)}
-          end
+          # @current = @params[:current] ? from_hash(@params[:current]) : nil
+          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
+          @target = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @root, target_params)
+          # if params[:targets]
+          #   @targets = @params[:targets].map{|t| from_hash(t)}
+          # end
 
           send("_#{@params[:cmd]}")
         else
@@ -157,11 +157,12 @@ module ElFinder
         @options
       end # of options=
 
+
       def tree
         {
           :name => @options[:home],
           :hash => to_hash(@root),
-          :dirs => tree_for(dropbox_ls(@root)),
+          :dirs => tree_for(@root.children),
           :volumeid => @options[:volume_id]
         }.merge(perms_for(@root))
       end
@@ -184,17 +185,17 @@ module ElFinder
           return
         end
 
-        children_target_list = dropbox_ls(target)
         @response[:cwd] = cwd_for(target)
-        @response[:cdc] = children_target_list.
-                          sort_by{|e| e['path'].to_s.downcase}.
+        @response[:cdc] = target.children.
+                          sort_by{|e| e.basename.downcase}.
                           map{|e| cdc_for(e)}.compact
+
         if @params[:tree]
-          root_list = dropbox_ls(@root)          
+          # root_list = dropbox_ls(@root)
           @response[:tree] = {
             :name => @options[:home],
             :hash => to_hash(@root),
-            :dirs => tree_for(root_list),
+            :dirs => tree_for(@root.children),
             :volumeid => @options[:volume_id]
           }.merge(perms_for(@root))
         end
@@ -249,7 +250,6 @@ module ElFinder
       # -------------------------------------------------------------------
 
 
-
       def dropbox_ls(path)
         nornalize_list = @dropbox_api.metadata(path)['contents']
         @pwd = path
@@ -294,7 +294,7 @@ module ElFinder
       # 
       def cwd_for(pathname)
         {
-          :name => pathname.to_s,
+          :name => pathname.basename,
           :hash => to_hash(pathname),
           :mime => 'directory',
           :rel => pathname == @root ? @options[:home] : (@options[:home] + '/' + pathname.to_s),
@@ -304,46 +304,46 @@ module ElFinder
       end
 
 
-      def cdc_for(metadata_info)
-        return nil if @options[:thumbs] && metadata_info['path'].to_s == @thumb_directory.to_s
+      #
+      def cdc_for(pathname)
+        #return nil if @options[:thumbs] && pathname.to_s == @thumb_directory.to_s
         response = {
-          :name => metadata_info['path'].to_s,
-          :hash => to_hash(metadata_info['path']),
-          :date => metadata_info['modified'],
+          :name => pathname.basename,
+          :hash => to_hash(pathname),
+          :date => pathname.mtime,
         }
-        response.merge! perms_for(metadata_info)
+        response.merge! perms_for(pathname)
 
-        if metadata_info['is_dir']
+        if pathname.dir?
           response.merge!(
             :size => 0,
             :mime => 'directory'
           )
         else
           response.merge!(
-            :size => metadata_info['bytes'].to_i, 
-            :mime => mime_handler.for(metadata_info['path']),
-            :url => (@options[:url] + '/' + metadata_info['path'].to_s)
+            :size => pathname.filesize, 
+            :mime => mime_handler.for(pathname.basename),
+            :url => (@options[:url] + '/' + pathname.to_s)
           )
 
         end
 
-
         return response
       end
 
+
       #
-      def tree_for(metadata_list_info)
-        metadata_list_info.select{ |l| l['is_dir'] }.
-        sort_by{|e| e['path'].to_s.downcase}.
+      def tree_for(pathnames)
+        pathnames.select{ |l| l.dir? }.
+        sort_by{ |e| e.basename.downcase }.
         map { |child|
-            {:name => child['path'].to_s,
-             :hash => to_hash(child['path']),
-             # :dirs => [],
-             :dirs => tree_for(dropbox_ls(child['path'])),
-             # :dirs => tree_for(child.path),
+            {:name => child.basename,
+             :hash => to_hash(child),
+             :dirs => tree_for(child.children),
             }.merge(perms_for(child))
         }
       end # of tree_for
+
 
       #
       def perms_for(pathname, options = {})
