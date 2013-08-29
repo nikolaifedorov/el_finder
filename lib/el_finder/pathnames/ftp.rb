@@ -1,4 +1,5 @@
 require 'pathname'
+require 'net/ftp/list'
 
 # Author::  Nikolai Fedorov (nfedorov)
 
