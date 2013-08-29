@@ -88,15 +88,21 @@ module ElFinder
 
       # 
       def children
-        @dropbox_metadata_raw['contents'].
-          map{ |e| self.class.new(@dropbox_client, @root.to_s, path_from_root(e['path']), e) }
+        @dropbox_metadata_raw['contents'].nil? ? [] : @dropbox_metadata_raw['contents'].
+                                                        map{ |e| self.class.new( 
+                                                                                 @dropbox_client, 
+                                                                                 @root.to_s, 
+                                                                                 path_from_root(e['path']), 
+                                                                                 e
+                                                                               )
+                                                           }
       end
 
 
       private
 
       def path_from_root(path)
-        path.slice((@root.to_s.length + 1)..-1)
+        path.slice((@root.to_s.length)..-1)
       end
 
       def self_dropbox_metadata_raw
