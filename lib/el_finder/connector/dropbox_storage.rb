@@ -85,7 +85,7 @@ module ElFinder
 
           # @current = @params[:current] ? from_hash(@params[:current]) : nil
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
-          @target = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @root, target_params)
+          @target = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @root.to_s, target_params)
           # if params[:targets]
           #   @targets = @params[:targets].map{|t| from_hash(t)}
           # end
