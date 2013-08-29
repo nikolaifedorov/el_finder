@@ -21,7 +21,7 @@ module ElFinder
         if other.is_a? ::ElFinder::Pathnames::Dropbox
           other = other.path
         end
-        self.class.new(@dropbox_client, @root, (@path + other).to_s)
+        self.class.new(@dropbox_client, @root.to_s, (@path + other).to_s)
       end # of +
 
       #
