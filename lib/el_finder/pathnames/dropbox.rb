@@ -89,7 +89,7 @@ module ElFinder
       # 
       def children
         @dropbox_metadata_raw['contents'].
-          map{ |e| self.class.new(@dropbox_client, @root.to_s, path_from_root(e['path'], e) }
+          map{ |e| self.class.new(@dropbox_client, @root.to_s, path_from_root(e['path']), e) }
       end
 
 
