@@ -333,10 +333,6 @@ module ElFinder
 
       #
       def tree_for(metadata_list_info)
-        puts "---------------------------"
-        puts "metadata_list_info = #{metadata_list_info}"
-        puts "---------------------------"
-
         metadata_list_info.select{ |l| l['is_dir'] }.
         sort_by{|e| e['path'].to_s.downcase}.
         map { |child|
