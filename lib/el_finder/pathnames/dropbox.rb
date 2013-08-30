@@ -11,8 +11,8 @@ module ElFinder
       #
       def initialize(dropbox_client, root, path = '.', dropbox_metadata_raw = nil)
         @dropbox_client = dropbox_client
-        @root = Pathname.new(root)
-        @path = Pathname.new(path)
+        @root = Pathname.new(root.to_s)
+        @path = Pathname.new(path.to_s)
         @dropbox_metadata_raw = dropbox_metadata_raw.nil? ? self_dropbox_metadata_raw : dropbox_metadata_raw
       end # of initialize
 
@@ -66,7 +66,8 @@ module ElFinder
 
       #
       def mtime
-        @dropbox_metadata_raw ? Time.parse(@dropbox_metadata_raw['modified']).to_i : 0 
+        # @dropbox_metadata_raw ? Time.parse(@dropbox_metadata_raw['modified']).to_i : 0 
+        @dropbox_metadata_raw ? @dropbox_metadata_raw['modified'] : 0 
       end
 
       #
@@ -92,8 +93,7 @@ module ElFinder
                                                         map{ |e| self.class.new( 
                                                                                  @dropbox_client, 
                                                                                  @root.to_s, 
-                                                                                 path_from_root(e['path']), 
-                                                                                 e
+                                                                                 path_from_root(e['path']) 
                                                                                )
                                                            }
       end
