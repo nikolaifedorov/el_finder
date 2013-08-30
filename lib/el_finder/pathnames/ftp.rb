@@ -12,8 +12,8 @@ module ElFinder
       #
       def initialize(ftp_connect, root, path = '.', ftp_entry = nil)
         @ftp_connect = ftp_connect
-        @root = Pathname.new(root)
-        @path = Pathname.new(path)
+        @root = Pathname.new(root.to_s)
+        @path = Pathname.new(path.to_s)
         @ftp_entry = ftp_entry.nil? ? self_ftp_entry : ftp_entry
       end # of initialize
 
@@ -22,7 +22,7 @@ module ElFinder
         if other.is_a? ::ElFinder::Pathnames::FTP
           other = other.path
         end
-        self.class.new(@ftp_connect, @root, (@path + other).to_s)
+        self.class.new(@ftp_connect, @root.to_s, (@path + other).to_s)
       end # of +
 
       #
@@ -113,7 +113,9 @@ module ElFinder
 
         @ftp_connect.chdir(restore_current_path)
 
-        ftp_entry = @ftp_connect.ls(parent_path).map{ |obj| Net::FTP::List.parse(obj) }.select{ |e| e.basename == basename }
+        ftp_entry = @ftp_connect.ls(parent_path).map{ |obj| Net::FTP::List.parse(obj) }
+        ftp_entry =  ftp_entry.select{ |e| e.basename == basename }
+
         ftp_entry.empty? ? nil : ftp_entry[0]
       end
 
