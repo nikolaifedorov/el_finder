@@ -62,7 +62,8 @@ module ElFinder
         @dropbox_api = get_dropbox_client(@options[:authorize_code])
 
         @root = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @options[:root])
-        @options[:url] = @options[:root]
+        @options[:url] = "dropbox"
+        #@options[:root]
 
         @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
@@ -84,7 +85,7 @@ module ElFinder
         if VALID_COMMANDS.include?(@params[:cmd])
 
           # @current = @params[:current] ? from_hash(@params[:current]) : nil
-          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
+          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : '.'
           @target = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @root.to_s, target_params)
           # if params[:targets]
           #   @targets = @params[:targets].map{|t| from_hash(t)}

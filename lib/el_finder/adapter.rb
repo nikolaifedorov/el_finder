@@ -89,7 +89,9 @@ module ElFinder
       end
 
       return @headers, @response
-
+    # rescue Exception => e  
+    #   puts e.message  
+    #   puts e.backtrace
     end # of run
 
 

@@ -60,7 +60,7 @@ module ElFinder
         @ftp.login(@options[:login], @options[:password])
         @ftp.chdir(@options[:root])
 
-        @root = ::ElFinder::Pathnames::FTP.new(@ftp, @options[:root])
+        @root = ::ElFinder::Pathnames::FTP.new(@ftp, @options[:root].to_s)
 
         @pwd = @ftp.pwd
 
@@ -86,8 +86,8 @@ module ElFinder
 
           # @current = @params[:current] ? from_hash(@params[:current]) : nil
 
-          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : nil
-          @target = ::ElFinder::Pathnames::FTP.new(@ftp, @root, target_params)
+          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : '.'
+          @target = ::ElFinder::Pathnames::FTP.new(@ftp, @root.to_s, target_params)
           # if params[:targets]
           #   @targets = @params[:targets].map{|t| from_hash(t)}
           # end
@@ -125,7 +125,6 @@ module ElFinder
 
       #
       def from_hash(hash)
-
         match = hash.match('\A(\S\d?)_(.+\z)')
         volume_id, hash = match[1], match[2] unless match.nil?
         
@@ -152,12 +151,13 @@ module ElFinder
       # Options setter.
       # @param value [Hash] Options to be merged with instance ones.
       # @return [Hash] Updated options.
-      def options=(value = {})
-        value.each_pair do |k, v|
-          @options[k.to_sym] = v
-        end
-        @options
-      end # of options=
+      # def options=(value = {})
+      #   value.each_pair do |k, v|
+      #     @options[k.to_sym] = v
+      #   end
+      #   @options
+      # end # of options=
+
 
       def tree
         {
@@ -224,15 +224,12 @@ module ElFinder
       ################################################################################
       private
 
+      # def ftp_ls(path)
+      #   nornalize_list = @ftp.ls(path).map{ |obj| parse_ls_unix_like_format(obj) }
+      #   @pwd = path
 
-      def ftp_ls(path)
-        nornalize_list = @ftp.ls(path).map{ |obj| parse_ls_unix_like_format(obj) }
-        @pwd = path
-
-        nornalize_list
-      end
-
-
+      #   nornalize_list
+      # end
 
       #
       def upload_max_size_in_bytes
@@ -263,11 +260,11 @@ module ElFinder
       # mod_time
       # path
       #
-      def parse_ls_unix_like_format(str="")
-        str = str.force_encoding('utf-8')
-        reg = /^(?<type>.{1})(?<mode>\S+)\s+(?<number>\d+)\s+(?<owner>\S+)\s+(?<group>\S+)\s+(?<size>\d+)\s+(?<mod_time>.{12})\s+(?<path>.+)$/
-        str.match(reg)
-      end
+      # def parse_ls_unix_like_format(str="")
+      #   str = str.force_encoding('utf-8')
+      #   reg = /^(?<type>.{1})(?<mode>\S+)\s+(?<number>\d+)\s+(?<owner>\S+)\s+(?<group>\S+)\s+(?<size>\d+)\s+(?<mod_time>.{12})\s+(?<path>.+)$/
+      #   str.match(reg)
+      # end
 
       #
       def thumbnail_for(pathname)
