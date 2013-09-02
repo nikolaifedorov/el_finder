@@ -1,20 +1,19 @@
 require 'fileutils'
-require 'pathname'
 
 # Author::  Philip Hallstrom (phallstrom)
+# Author::  Nikolai Fedorov (nfedorov)
 
 module ElFinder
-  module Pathnames
+  module ConnectionPathnames
 
-    class FileSystem
+    class FileSystemPathname < AbstractPathname
       attr_reader :root, :path
 
       #
-      def initialize(root, path = '.')
-        @root = root.is_a?(ElFinder::Pathnames::FileSystem) ? root.root : ::Pathname.new(root)
+      def initialize(client, root, path = '.', entry = nil)
 
-        @path = ::Pathname.new(path)
-        @path = path.is_a?(ElFinder::Pathnames::FileSystem) ? path.path : ::Pathname.new(path)
+        super(nil, root, path, entry)
+
         if absolute?
           if @path.cleanpath.to_s.start_with?(@root.to_s)
             @path = ::Pathname.new @path.to_s.slice((@root.to_s.length + 1)..-1)
@@ -26,79 +25,7 @@ module ElFinder
         raise SecurityError, "Paths outside the root are not allowed" if outside_of_root?
       end # of initialize
 
-      #
-      def +(other)
-        if other.is_a? ::ElFinder::Pathnames::FileSystem
-          other = other.path
-        end
-        self.class.new(@root, (@path + other).to_s)
-      end # of +
-
-      #
-      def is_root?
-        @path.to_s == '.'
-      end
-
-      #
-      def absolute?
-        @path.absolute?
-      end # of absolute?
-
-      #
-      def relative?
-        @path.relative?
-      end # of relative?
-
-      #
-      def outside_of_root?
-        !cleanpath.to_s.start_with?(@root.to_s)
-      end # of outside_of_root?
-
-      #
-      def fullpath
-        @path.nil? ? @root : @root + @path
-      end # of fullpath
-
-      #
-      def cleanpath
-        fullpath.cleanpath
-      end # of cleanpath
-
-      #
-      def realpath
-        fullpath.realpath
-      end # of realpath
-
-      #
-      def basename(*args)
-        @path.basename(*args)
-      end # of basename
-
-      #
-      def basename_sans_extension
-        @path.basename(@path.extname)
-      end # of basename
-
-      #
-      def basename(*args)
-        @path.basename(*args)
-      end # of basename
-
-      #
-      def dirname
-        self.class.new(@root, @path.dirname)
-      end # of basename
-
-      #
-      def extname
-        @path.nil? ? '' : @path.extname
-      end # of extname
-
-      #
-      def to_s
-        cleanpath.to_s
-      end # of to_s
-      alias_method :to_str, :to_s
+      # API
 
       # 
       def child_directories(with_directory=true)
@@ -181,7 +108,7 @@ module ElFinder
         METHOD
       end
 
-    end # of class FileSystem
+    end # of class FileSystemPathname
 
-  end # of module Pathnames
+  end # of module ConnectionPathnames
 end # of module ElFinder

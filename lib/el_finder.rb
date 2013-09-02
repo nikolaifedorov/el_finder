@@ -2,9 +2,9 @@ require 'fileutils'
 
 require 'el_finder/base64'
 
-require 'el_finder/pathnames/file_system'
-require 'el_finder/pathnames/ftp'
-require 'el_finder/pathnames/dropbox'
+require 'el_finder/connection_pathnames/file_system_pathname'
+require 'el_finder/connection_pathnames/ftp_pathname'
+require 'el_finder/connection_pathnames/dropbox_pathname'
 
 require 'el_finder/mime_type'
 require 'el_finder/image'

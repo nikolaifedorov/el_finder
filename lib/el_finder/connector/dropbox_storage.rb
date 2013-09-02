@@ -61,7 +61,7 @@ module ElFinder
 
         @dropbox_api = get_dropbox_client(@options[:authorize_code])
 
-        @root = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @options[:root])
+        @root = ::ElFinder::ConnectionPathnames::DropboxPathname.new(@dropbox_api, @options[:root])
         @options[:url] = "dropbox"
         #@options[:root]
 
@@ -86,7 +86,7 @@ module ElFinder
 
           # @current = @params[:current] ? from_hash(@params[:current]) : nil
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : '.'
-          @target = ::ElFinder::Pathnames::Dropbox.new(@dropbox_api, @root.to_s, target_params)
+          @target = ::ElFinder::ConnectionPathnames::DropboxPathname.new(@dropbox_api, @root.to_s, target_params)
           # if params[:targets]
           #   @targets = @params[:targets].map{|t| from_hash(t)}
           # end
