@@ -22,8 +22,11 @@ Gem::Specification.new do |s|
   s.add_dependency('image_size', '>= 1.0.0')
   s.add_dependency('dropbox-sdk', '>= 1.6.1')
   s.add_dependency('net-ftp-list', '>= 3.2.5')
+
+  s.add_development_dependency "rspec"
   s.add_development_dependency('yard', '~> 0.8.1')
   s.add_development_dependency('redcarpet', '~> 2.1.1')
+
   s.requirements << 'ImageMagick'
 
 end
