@@ -50,7 +50,7 @@ module ElFinder
         raise(ArgumentError, "Mime Handler is invalid") unless mime_handler.respond_to?(:for)
         raise(ArgumentError, "Image Handler is invalid") unless image_handler.nil? || ([:size, :resize, :thumbnail].all?{|m| image_handler.respond_to?(m)})
 
-        @root = ElFinder::ConnectionPathnames::FileSystemPathname.new(options[:root])
+        @root = ElFinder::ConnectionPathnames::FileSystemPathname.new(nil, options[:root])
 
         @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
