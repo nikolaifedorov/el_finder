@@ -29,12 +29,12 @@ module ElFinder
 
       # 
       def child_directories(with_directory=true)
-        realpath.children(with_directory).select{ |child| child.directory? }.map{|e| self.class.new(@root, e)}
+        realpath.children(with_directory).select{ |child| child.directory? }.map{|e| self.class.new(@client_api, @root, e)}
       end
 
       #
       def children(with_directory=true)
-        realpath.children(with_directory).map{|e| self.class.new(@root, e)}
+        realpath.children(with_directory).map{|e| self.class.new(@client_api, @root, e)}
       end
 
       #
@@ -52,7 +52,7 @@ module ElFinder
         return self.dup unless self.file?
         copy = 1
         begin
-          new_file = self.class.new(@root, dirname + "#{basename_sans_extension} #{copy}#{extname}")
+          new_file = self.class.new(@client_api, @root, dirname + "#{basename_sans_extension} #{copy}#{extname}")
           copy += 1
         end while new_file.exist?
         new_file
@@ -67,7 +67,7 @@ module ElFinder
           copy = $2.to_i
         end
         begin
-          new_file = self.class.new(@root, dirname + "#{_basename} copy #{copy}#{extname}")
+          new_file = self.class.new(@client_api, @root, dirname + "#{_basename} copy #{copy}#{extname}")
           copy += 1
         end while new_file.exist?
         new_file
@@ -75,7 +75,7 @@ module ElFinder
 
       #
       def rename(to)
-        to = self.class.new(@root, to.to_s)
+        to = self.class.new(@client_api, @root, to.to_s)
         realpath.rename(to.fullpath.to_s)
       rescue Errno::EXDEV
         FileUtils.move(realpath.to_s, to.fullpath.to_s)
