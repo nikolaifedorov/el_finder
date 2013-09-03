@@ -60,7 +60,7 @@ module ElFinder
         @ftp.login(@options[:login], @options[:password])
         @ftp.chdir(@options[:root])
 
-        @root = ::ElFinder::Pathnames::FTP.new(@ftp, @options[:root].to_s)
+        @root = ::ElFinder::ConnectionPathnames::FTPPathname.new(@ftp, @options[:root].to_s)
 
         @pwd = @ftp.pwd
 
@@ -87,7 +87,7 @@ module ElFinder
           # @current = @params[:current] ? from_hash(@params[:current]) : nil
 
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : '.'
-          @target = ::ElFinder::Pathnames::FTP.new(@ftp, @root.to_s, target_params)
+          @target = ::ElFinder::ConnectionPathnames::FTPPathname.new(@ftp, @root.to_s, target_params)
           # if params[:targets]
           #   @targets = @params[:targets].map{|t| from_hash(t)}
           # end
