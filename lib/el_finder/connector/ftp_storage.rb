@@ -190,7 +190,7 @@ module ElFinder
 
         @response[:cwd] = cwd_for(target)
         @response[:cdc] = target.children.
-                          sort_by{|e| e.basename.downcase}.
+                          sort_by{|e| e.basename.to_s.downcase}.
                           map{|e| cdc_for(e)}.compact
 
         if @params[:tree]
@@ -286,7 +286,7 @@ module ElFinder
       def cwd_for(pathname)
 
         {
-          :name => pathname.basename,
+          :name => pathname.basename.to_s,
           :hash => to_hash(pathname),
           :mime => 'directory',
           :rel => pathname == @root ? @options[:home] : (@options[:home] + '/' + pathname.to_s),
@@ -299,7 +299,7 @@ module ElFinder
       def cdc_for(pathname)
         #return nil if @options[:thumbs] && pathname.to_s == @thumb_directory.to_s
         response = {
-          :name => pathname.basename,
+          :name => pathname.basename.to_s,
           :hash => to_hash(pathname),
           :date => pathname.mtime,
         }
@@ -325,9 +325,9 @@ module ElFinder
       #
       def tree_for(pathnames)
         pathnames.select{ |l| l.dir? }.
-        sort_by{ |e| e.basename.downcase }.
+        sort_by{ |e| e.basename.to_s.downcase }.
         map { |child|
-            {:name => child.basename,
+            {:name => child.basename.to_s,
              :hash => to_hash(child),
              # :dirs => [],
              :dirs => tree_for(child.children),
