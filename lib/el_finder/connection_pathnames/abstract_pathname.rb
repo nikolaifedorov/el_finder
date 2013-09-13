@@ -22,7 +22,7 @@ module ElFinder
         if other.is_a? self.class
           other = other.path
         end
-        self.class.new(@root, (@path + other).to_s)
+        self.class.new(@client_api, @root, (@path + other).to_s)
       end # of +
 
       #
