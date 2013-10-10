@@ -10,45 +10,78 @@ module ElFinder
         0
       end
 
+
       #
       def dir?
-        @entry_metadata.is_a? Java::OrgBiodtFs::Folder
+        @entry_metadata.dir?
       end
+
 
       #
       def filesize
         0
       end
 
+
       # 
       def children
-        ls(@entry_metadata).map{ |e| self.class.new(@client_api, @root.to_s, @path.to_s + '/' + e.basename, e) }
+        ls(@entry_metadata).map{ |e| self.class.new(@client_api, @root.to_s, @path.to_s + '/' + e.getName(), e) }
       end
 
-      def root
-        @findFolder.getRoot()
+
+      def ejb_root
+        @client_api.getRoot()
       end
 
-      def ls(folder = root)
+
+      def ls(folder = ejb_root)
         folders(folder) + files(folder)
       end
 
+
       def folders(folder)
-        findFolder.getFolders(folder)
+        @client_api.getFolders(folder).each do |folder|
+
+          def folder.dir?
+            true
+          end
+
+        end
       end
 
+
       def files(folder)
-        findFolder.getFiles(folder)
+        @client_api.getFiles(folder).each do |file|
+
+          def file.dir?
+            false
+          end
+
+        end
       end
+
 
       private
 
       def get_entry_metadata
         @entry_metadata = @client_api.findFolder(fullpath.to_s)
-        @entry_metadata = @client_api.findFile(fullpath.to_s) if @entry_metadata.nil?
+        if @entry_metadata.nil?
+          @entry_metadata = @client_api.findFile(fullpath.to_s)
 
+          def @entry_metadata.dir?
+            false
+          end
+
+        else
+
+          def @entry_metadata.dir?
+            true
+          end
+
+        end
+        
         @entry_metadata
-      end
+      end # get_entry_metadata
 
     end # of class EJB
 
