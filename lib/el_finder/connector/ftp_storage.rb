@@ -7,7 +7,7 @@ module ElFinder
   module Connector
   
     # Represents ElFinder connector to ftp server.
-    class FtpStorage
+    class FtpStorage < AbstractConnector
 
       DRIVER_ID = "f"
 

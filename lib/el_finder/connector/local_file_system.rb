@@ -7,7 +7,7 @@ module ElFinder
   module Connector
   
     # Represents ElFinder connector to file system.
-    class LocalFileSystem
+    class LocalFileSystem < AbstractConnector
 
       DRIVER_ID = "l"
 

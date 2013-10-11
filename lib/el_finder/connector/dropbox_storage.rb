@@ -7,7 +7,7 @@ module ElFinder
   module Connector
   
     # Represents ElFinder connector to dropbox server.
-    class DropboxStorage
+    class DropboxStorage < AbstractConnector
 
       DRIVER_ID = "d"
 
