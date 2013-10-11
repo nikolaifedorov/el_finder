@@ -42,24 +42,24 @@ module ElFinder
 
 
       def folders(folder)
-        @client_api.getFolders(folder).each do |folder|
-
+        folders = @client_api.getFolders(folder)
+        folders.each do |folder|
           def folder.dir?
             true
           end
-
         end
+        folders
       end
 
 
       def files(folder)
-        @client_api.getFiles(folder).each do |file|
-
+        files = @client_api.getFiles(folder)
+        files.each do |file|
           def file.dir?
             false
           end
-
         end
+        files
       end
 
 

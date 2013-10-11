@@ -30,11 +30,13 @@ module ElFinder
         @options = DEFAULT_OPTIONS.merge(options)
 
         raise(ArgumentError, "Missing required :driver_other option") unless @options.key?(:driver_other)
+        raise(ArgumentError, "Missing required :root_other option") unless @options.key?(:root_other)
 
         @options[:volume_id] = "#{DRIVER_ID}#{@options[:index]}" unless @options[:index] == 0
 
         @one_connector = ElFinder::Connector::ConnectorFactory.createConnector('ejb').new(@options)
-        @two_connector = ElFinder::Connector::ConnectorFactory.createConnector(options[:driver_other]).new(@options)
+        two_connector_options = @options.merge({:root => @options[:root_other]})
+        @two_connector = ElFinder::Connector::ConnectorFactory.createConnector(@options[:driver_other]).new(two_connector_options)
 
         @headers = {}
         @response = {}
