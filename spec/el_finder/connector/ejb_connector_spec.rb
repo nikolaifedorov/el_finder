@@ -6,7 +6,7 @@ describe ElFinder::Connector::EjbConnector do
     {
       :driver => 'ejb',
       :root => 'system/elfinder',
-      :url => 'system/elfinder',
+      :url => 'elfinder_url',
       :jndi_file => 'test_jndi_file.yml',
       :ejb_service => 'test_ejb_service'
      }
@@ -75,16 +75,19 @@ describe ElFinder::Connector::EjbConnector do
 
 
   let(:ejb_connector) { ElFinder::Connector::EjbConnector.new(options) }
-  let(:expected_path) { "/test/test" }
-  let(:expected_hash) { "ejb_L3Rlc3QvdGVzdA" }
+  let(:pathname) { ElFinder::ConnectionPathnames::EjbPathname.new(fake_ejb_service, options[:root], "/files/test")}
+  let(:expected_hash) { "ejb_L2ZpbGVzL3Rlc3Q" }
 
   context "#to_hash" do
-    it { expect(ejb_connector.to_hash(expected_path)).to eql(expected_hash) }
+    it { expect(ejb_connector.to_hash(pathname)).to eql(expected_hash) }
   end
 
 
+  let(:expected_path) { "/test/test" }
+  let(:validate_hash) { "ejb_L3Rlc3QvdGVzdA" }
+
   context "#from_hash" do
-    it { expect(ejb_connector.from_hash(expected_hash)).to eql(expected_path) }
+    it { expect(ejb_connector.from_hash(validate_hash).path.to_s).to eql(expected_path) }
   end
 
 
@@ -92,11 +95,11 @@ describe ElFinder::Connector::EjbConnector do
     let(:expected_tree) do 
       {
         :name=>"EJB-Home", 
-        :hash=>"ejb_c3lzdGVtL2VsZmluZGVy", 
+        :hash=>"ejb_Lg", 
         :dirs=> [
           {
             :name=>"Folder1", 
-            :hash=>"ejb_c3lzdGVtL2VsZmluZGVyL0ZvbGRlcjE", 
+            :hash=>"ejb_Rm9sZGVyMQ", 
             :dirs=>[], 
             :read=>true, 
             :write=>true, 
@@ -123,7 +126,7 @@ describe ElFinder::Connector::EjbConnector do
         :cdc => [
           {
             :name=>"File1", 
-            :hash=>"ejb_c3lzdGVtL2VsZmluZGVyL0ZpbGUx", 
+            :hash=>"ejb_RmlsZTE", 
             :date=>0, 
             :read=>true, 
             :write=>true, 
@@ -131,11 +134,11 @@ describe ElFinder::Connector::EjbConnector do
             :hidden=>false, 
             :size=>0, 
             :mime=>"unknown/unknown", 
-            :url=>"system/elfinder/system/elfinder/File1"
+            :url=>"elfinder_url/File1"
           }, 
           {
             :name=>"Folder1",
-            :hash=>"ejb_c3lzdGVtL2VsZmluZGVyL0ZvbGRlcjE",
+            :hash=>"ejb_Rm9sZGVyMQ",
             :date=>0,
             :read=>true,
             :write=>true,
@@ -147,9 +150,9 @@ describe ElFinder::Connector::EjbConnector do
         ],
         :cwd => {
           :name=>".",
-          :hash=>"ejb_c3lzdGVtL2VsZmluZGVy",
+          :hash=>"ejb_Lg",
           :mime=>"directory",
-          :rel=>"EJB-Home/system/elfinder",
+          :rel=>"EJB-Home",
           :size=>0,
           :date=>0,
           :read=>true,
@@ -159,7 +162,7 @@ describe ElFinder::Connector::EjbConnector do
         },
         :disabled => [],
         :netDrivers => [:ftp],
-        :params => {:dotFiles=>true, :uplMaxSize=>"50M", :archives=>[], :extract=>[], :url=>"system/elfinder"}
+        :params => {:dotFiles=>true, :uplMaxSize=>"50M", :archives=>[], :extract=>[], :url=>"elfinder_url"}
       }
     end
 
