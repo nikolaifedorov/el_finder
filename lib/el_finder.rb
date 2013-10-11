@@ -15,6 +15,7 @@ require 'el_finder/adapter'
 
 require 'el_finder/rejb'
 
+require 'el_finder/connector/abstract_connector'
 require 'el_finder/connector/local_file_system'
 require 'el_finder/connector/ftp_storage'
 require 'el_finder/connector/dropbox_storage'

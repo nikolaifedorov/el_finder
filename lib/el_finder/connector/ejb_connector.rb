@@ -5,7 +5,7 @@ module ElFinder
   module Connector
   
     # Represents ElFinder connector to EJB service.
-    class EjbConnector
+    class EjbConnector < AbstractConnector
 
       DRIVER_ID = "ejb"
 
@@ -83,6 +83,10 @@ module ElFinder
         return @headers, @response
       end # of run
 
+      #
+      def close_remote_connection
+        @context.close
+      end
 
       #
       def volume_id
