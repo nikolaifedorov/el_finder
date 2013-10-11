@@ -111,7 +111,7 @@ module ElFinder
 
 
     def volume_id_by_hash(hash)
-      match = hash.match('\A(\S\d?)_(.+\z)')
+      match = hash.match('\A(\S+\d?)_(.+\z)')
       volume_id = match[1] unless match.nil?
 
       volume_id
