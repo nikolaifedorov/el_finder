@@ -12,15 +12,15 @@ module ElFinder
       #
       def initialize(connection_client, root, path = '.', entry_metadata = nil)
         @client_api = connection_client 
-        @root = Pathname.new(root.to_s)
-        @path = Pathname.new(path.to_s)
+        @root = Pathname.new(root.to_s.tr("\n", ""))
+        @path = Pathname.new(path.to_s.tr("\n", ""))
         @entry_metadata = entry_metadata.nil? ? get_entry_metadata() : entry_metadata
       end # of initialize
 
       #
       def +(other)
         if other.is_a? self.class
-          other = other.path
+          other = other.path.tr("\n", "")
         end
         self.class.new(@client_api, @root, (@path + other).to_s)
       end # of +
@@ -82,14 +82,14 @@ module ElFinder
 
       #
       def to_s
-        cleanpath.to_s
+        cleanpath.to_s.tr("\n", "")
       end # of to_s
       alias_method :to_str, :to_s
 
 
       private
 
-      #
+      # It is raw entity from service (connecting to)
       def get_entry_metadata
         nil
       end
