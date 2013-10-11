@@ -25,7 +25,9 @@ module ElFinder
 
       # 
       def children
-        ls(@entry_metadata).map{ |e| self.class.new(@client_api, @root.to_s, @path.to_s + '/' + e.getName(), e) }
+        path = (@path.to_s == ".") ? "" : "#{@path.to_s}/"
+
+        ls(@entry_metadata).map{ |e| self.class.new(@client_api, @root.to_s, path + e.getName(), e) }
       end
 
 
