@@ -10,7 +10,8 @@ describe ElFinder::Connector::EjbAndOtherStorage do
     {
       :driver => 'ejb_and',
       :driver_other => 'local',
-      :root => vroot,
+      :root => "/",
+      :root_other => vroot,
       :url => 'elfinder_url',
       :jndi_file => 'test_jndi_file.yml',
       :ejb_service => 'test_ejb_service',
@@ -81,6 +82,7 @@ describe ElFinder::Connector::EjbAndOtherStorage do
     it { expect { ElFinder::Connector::EjbAndOtherStorage.new(options) }.not_to raise_error }
 
     it { expect { ElFinder::Connector::EjbAndOtherStorage.new({}) }.to raise_error(ArgumentError, "Missing required :driver_other option") }
+    it { expect { ElFinder::Connector::EjbAndOtherStorage.new({:driver_other => ""}) }.to raise_error(ArgumentError, "Missing required :root_other option") }
   end
 
 
