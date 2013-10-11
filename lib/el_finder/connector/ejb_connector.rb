@@ -93,7 +93,7 @@ module ElFinder
       #
       def to_hash(pathname)
         # note that '=' are removed
-        hash = Base64.urlsafe_encode64(pathname.to_s).chomp.tr("=\n", "")
+        hash = Base64.urlsafe_encode64(pathname.path.to_s).chomp.tr("=\n", "")
         "#{@options[:volume_id]}_#{hash}"
       end # of to_hash
 
@@ -116,9 +116,9 @@ module ElFinder
 
         decoded_hash = Base64.urlsafe_decode64(hash)
         decoded_hash = decoded_hash.respond_to?(:force_encoding) ? decoded_hash.force_encoding('utf-8') : decoded_hash
-        pathname = decoded_hash
-
-        pathname
+        # pathname = decoded_hash
+        # pathname
+        pathname = @root + decoded_hash
 
       rescue ArgumentError => e
         if e.message != 'invalid base64'
@@ -193,7 +193,7 @@ module ElFinder
           :name => pathname.basename.to_s,
           :hash => to_hash(pathname),
           :mime => 'directory',
-          :rel => pathname == @root ? @options[:home] : (@options[:home] + '/' + pathname.to_s),
+          :rel => pathname.is_root? ? @options[:home] : (@options[:home] + '/' + pathname.path.to_s),
           :size => 0,
           :date => 0,
         }.merge(perms_for(pathname))
@@ -217,8 +217,7 @@ module ElFinder
           response.merge!(
             :size => pathname.filesize, 
             :mime => mime_handler.for(pathname.basename),
-            # TODO: need think about it.
-            :url => (@options[:url] + '/' + pathname.to_s)
+            :url => (@options[:url] + '/' + pathname.path.to_s)
           )
 
         end
