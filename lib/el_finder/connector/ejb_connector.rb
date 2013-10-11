@@ -70,7 +70,7 @@ module ElFinder
 
         if VALID_COMMANDS.include?(@params[:cmd])
 
-          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]) : '.'
+          target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]).path : '.'
           @target = ::ElFinder::ConnectionPathnames::EjbPathname.new(@service, @root.to_s, target_params)
 
           send("_#{@params[:cmd]}")
