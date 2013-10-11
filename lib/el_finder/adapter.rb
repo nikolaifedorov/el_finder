@@ -93,7 +93,12 @@ module ElFinder
     #   puts e.backtrace
     end # of run
 
-
+    #
+    def close_all
+      @storages.values.each do |connector|
+        connector.close_remote_connection
+      end
+    end
 
     #
     def connector_from_params(params)
