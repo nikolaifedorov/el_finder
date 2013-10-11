@@ -6,9 +6,11 @@ module ElFinder
     class ConnectorFactory
 
       DRIVER_ID_TO_CLASS = {
-        'local'   => ElFinder::Connector::LocalFileSystem ,
+        'local'   => ElFinder::Connector::LocalFileSystem,
         'ftp'     => ElFinder::Connector::FtpStorage,
         'dropbox' => ElFinder::Connector::DropboxStorage,
+        'ejb'     => ElFinder::Connector::EjbConnector,
+        'ejb_and' => ElFinder::Connector::EjbAndOtherStorage
       }.freeze
 
 
