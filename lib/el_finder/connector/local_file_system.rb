@@ -112,7 +112,7 @@ module ElFinder
       #
       def from_hash(hash)
 
-        match = hash.match('\A(\S\d?)_(.+\z)')
+        match = hash.match('\A(\S+\d?)_(.+\z)')
         volume_id, hash = match[1], match[2] unless match.nil?
         
         # restore missing '='
@@ -210,6 +210,7 @@ module ElFinder
         end
 
         dir = @current + @params[:name]
+
         if !dir.exist? && dir.mkdir
           @params[:tree] = true
           @response[:select] = [to_hash(dir)]
