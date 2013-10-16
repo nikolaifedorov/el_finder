@@ -63,6 +63,18 @@ module ElFinder
       end
 
 
+      def set_attribute(key, value)
+        unless dir?
+          # TODO: I think it only tempory aproach.
+          attribute = Java::OrgBiodtFs::Attribute.new
+          attribute.setName(key)
+          attribute.setValue(value)
+          attribute.setFile(@entry_metadata)
+          @client_api.setAttribute(attribute)
+        end
+      end
+
+
       private
 
       def get_entry_metadata

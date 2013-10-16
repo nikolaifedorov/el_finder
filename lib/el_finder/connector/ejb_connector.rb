@@ -11,7 +11,7 @@ module ElFinder
 
       # Valid commands to run.
       # @see #run
-      VALID_COMMANDS = %w[open]
+      VALID_COMMANDS = %w[open addinfo]
 
       # Default options for instances.
       # @see #initialize
@@ -72,6 +72,10 @@ module ElFinder
 
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]).path : '.'
           @target = ::ElFinder::ConnectionPathnames::EjbPathname.new(@service, @root.to_s, target_params)
+
+          if params[:targets]
+            @targets = @params[:targets].map{|t| from_hash(t)}
+          end
 
           send("_#{@params[:cmd]}")
         else
@@ -187,6 +191,17 @@ module ElFinder
 
       end # of open
 
+      #
+      def _addinfo
+
+        key = @params['att_key']
+        value = @params['att_v']
+
+        @targets.to_a.each do |target|
+          target.set_attribute(key, value)
+        end
+
+      end # of addinfo
       
       ################################################################################
       private

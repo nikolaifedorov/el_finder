@@ -11,7 +11,7 @@ module ElFinder
 
       # Valid commands to run.
       # @see #run
-      VALID_COMMANDS = %w[archive duplicate edit extract mkdir mkfile open paste ping read rename resize rm tmb upload]
+      VALID_COMMANDS = %w[archive duplicate edit extract mkdir mkfile open addinfo paste ping read rename resize rm tmb upload]
 
       # Default options for instances.
       # @see #initialize
@@ -53,7 +53,7 @@ module ElFinder
         @response = {}
 
         if VALID_COMMANDS.include?(@params[:cmd])
-          if @params[:cmd] == "open"
+          if ["open", "addinfo"].include? @params[:cmd]
             @headers, @response = @one_connector.run(@params)
           else 
             @headers, @response = @two_connector.run(@params)
