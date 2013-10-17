@@ -26,8 +26,12 @@ module ElFinder
       # 
       def children
         path = (@path.to_s == ".") ? "" : "#{@path.to_s}/"
+        
+        ls(@entry_metadata).map do |entry|
+          name_entry = entry.dir? ? entry.getName() : entry.getFileName()
 
-        ls(@entry_metadata).map{ |e| self.class.new(@client_api, @root.to_s, path + e.getName(), e) }
+          self.class.new(@client_api, @root.to_s, path + name_entry, entry)
+        end
       end
 
 

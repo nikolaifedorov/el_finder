@@ -200,7 +200,11 @@ module ElFinder
         @targets.to_a.each do |target|
           target.set_attribute(key, value)
         end
-
+        
+        @response["cmd"] = "addinfo"
+        @response["status"] = "success"
+      rescue Exception => e
+        @response[:error] = "Invalid 'addinfo': #{e.message}"
       end # of addinfo
       
       ################################################################################
