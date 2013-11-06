@@ -10,6 +10,7 @@ module ElFinder
         'ftp'     => ElFinder::Connector::FtpStorage,
         'dropbox' => ElFinder::Connector::DropboxStorage,
         'ejb'     => ElFinder::Connector::EjbConnector,
+        'rest'    => ElFinder::Connector::RestConnector,
         'ejb_and' => ElFinder::Connector::EjbAndOtherStorage
       }.freeze
 
