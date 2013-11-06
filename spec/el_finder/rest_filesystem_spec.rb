@@ -17,6 +17,10 @@ describe RestFilesystem do
     end
   end
 
+  def stub_rest_client(json)
+    RestClient.should_receive(:send).and_return(json)
+  end
+
   let(:subject) { RestFilesystem }
 
   describe "::init" do
@@ -32,9 +36,12 @@ describe RestFilesystem do
   end # ::init
 
 
+  let(:json) { '{"t":"test"}' }
+  let(:expected_hash) { { 't' => 'test' } }
+
   describe "::get" do
 
-    context "when do not call ::init" do
+    context "when was not invoke ::init" do
 
       it 'raises NameError' do
         expect { subject.get }.to raise_error(NameError, "uninitialized constant RestFilesystem::SERVER_URL")
@@ -42,19 +49,34 @@ describe RestFilesystem do
 
     end
 
-    it 'calls ::validation' do
+    it 'invokes ::validation' do
+      stub_rest_client(json)
       subject.should_receive(:validation).and_return("fake")
-      subject.stub(:request)
       
       subject.init(nil)
-      subject.get
+      expect { subject.get({}) }.to_not raise_error
     end
 
-    it 'calls ::request' do
+    it 'invokes ::request' do
       subject.should_receive(:request)
       
       subject.init(nil)
-      subject.get
+      expect { subject.get({}) }.to_not raise_error
+    end
+
+    it 'invokes ::params' do
+      stub_rest_client(json)
+      subject.should_receive(:params)
+      
+      subject.init(nil)
+      expect { subject.get({}) }.to_not raise_error
+    end
+
+    it 'returns hash' do
+      stub_rest_client(json)
+      subject.init(nil)
+
+      expect( subject.get({}) ).to eq(expected_hash)
     end
 
   end # ::get
@@ -64,12 +86,44 @@ describe RestFilesystem do
     it 'raises NoMethodError, because it is a private method' do
       expect { subject.validation }.to raise_error(NoMethodError)
     end
+
+    context "when uninitialized SERVER_URL" do
+
+      it 'raises NameError' do
+        expect { subject.send(:validation) }.to raise_error(NameError, "uninitialized constant RestFilesystem::SERVER_URL")
+      end
+
+    end
   end # ::validation
 
+
+  describe "::parser" do
+    it 'raises NoMethodError, because it is a private method' do
+      expect { subject.parser }.to raise_error(NoMethodError)
+    end
+
+    it 'correct parse json' do
+      expect( subject.send(:parser, json) ).to eq(expected_hash)
+    end
+
+  end # ::parser
 
   describe "::request" do
     it 'raises NoMethodError, because it is a private method' do
       expect { subject.request }.to raise_error(NoMethodError)
+    end
+
+    it 'invokes ::parser' do
+      stub_rest_client(json)
+      subject.should_receive(:parser)
+
+      subject.send(:request, :get, {})
+    end
+
+    it 'returns hash' do
+      stub_rest_client(json)
+
+      expect( subject.send(:request, :get, {}) ).to eq(expected_hash)
     end
   end # ::request
 
@@ -78,21 +132,12 @@ describe RestFilesystem do
     it 'raises NoMethodError, because it is a private method' do
       expect { subject.params }.to raise_error(NoMethodError)
     end
-  end # ::request
 
+    let(:arguments) { {'key' => "key", 'withChildren' => true }}
 
-  describe "::parser" do
-    it 'raises NoMethodError, because it is a private method' do
-      expect { subject.parser }.to raise_error(NoMethodError)
+    it 'returns hash with arguments in "params" key' do
+      expect( subject.send(:params, arguments) ).to eq( { params: arguments } )
     end
+  end # ::params
 
-    let(:json) { '{"t":"test"}' }
-    let(:expected_hash) { { 't' => 'test' } }
-    
-    it 'correct parse json' do
-      expect( subject.send(:parser, json) ).to eq(expected_hash)
-    end
-
-  end # ::request
-
-end
+end # RestFilesystem
