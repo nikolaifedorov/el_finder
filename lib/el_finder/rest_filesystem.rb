@@ -4,7 +4,7 @@ class RestFilesystem
 
     def init(rest_file_options)
       RestSettings.init(rest_file_options)
-      SERVER_URL = RestSettings.filesystem_server
+      const_set('SERVER_URL', RestSettings.filesystem_server)
     end
 
 
@@ -17,7 +17,7 @@ class RestFilesystem
     private
 
     def validation
-      raise Errno::ENOENT, "'SERVER_URL' constant was not initialized." if SERVER_URL.nil?
+      const_get(:SERVER_URL)
     end
 
 
@@ -29,7 +29,7 @@ class RestFilesystem
 
     # params for request
     def params(params)
-      request_params = { params: params }
+      { params: params }
     end
 
 

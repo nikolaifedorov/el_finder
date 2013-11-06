@@ -1,0 +1,14 @@
+defaults: &defaults
+  filesystem_server: http://test-server:8080/service-rest/rest/filesystem
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+stage:
+  <<: *defaults
+
+production:
+  <<: *defaults
