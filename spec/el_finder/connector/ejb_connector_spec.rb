@@ -16,7 +16,7 @@ describe ElFinder::Connector::EjbConnector do
   let(:null_object) { double('null object').as_null_object }
 
   let(:folder_null_object) do
-    folder = double('null object').as_null_object
+    folder = double('null filder object').as_null_object
     folder.stub(:getName) { "Folder1" }
 
     folder
@@ -24,8 +24,8 @@ describe ElFinder::Connector::EjbConnector do
 
 
   let(:file_null_object) do
-    file = double('null object').as_null_object
-    file.stub(:getName) { "File1" }
+    file = double('null file object').as_null_object
+    file.stub(:getFileName) { "File1" }
 
     file
   end
@@ -62,19 +62,21 @@ describe ElFinder::Connector::EjbConnector do
   end
 
 
-  context "initialize" do
-    it { expect { ElFinder::Connector::EjbConnector.new(options) }.not_to raise_error }
+  let(:connector) { ElFinder::Connector::EjbConnector }
 
-    it { expect { ElFinder::Connector::EjbConnector.new({}) }.to raise_error(ArgumentError, "Missing required :root option") }
-    it { expect { ElFinder::Connector::EjbConnector.new({ :root => "" }) }.to raise_error(ArgumentError, "Missing required :jndi_file option") }
-    it { expect { ElFinder::Connector::EjbConnector.new({ :root => "", :jndi_file => "" }) }
+  describe "initialize" do
+    it { expect { connector.new(options) }.not_to raise_error }
+
+    it { expect { connector.new({}) }.to raise_error(ArgumentError, "Missing required :root option") }
+    it { expect { connector.new({ :root => "" }) }.to raise_error(ArgumentError, "Missing required :jndi_file option") }
+    it { expect { connector.new({ :root => "", :jndi_file => "" }) }
                 .to raise_error(ArgumentError, "Missing required :ejb_service option")
        }
-    it { expect { ElFinder::Connector::EjbConnector.new({ :root => "", :jndi_file => "", :ejb_service => "" }) }.not_to raise_error }
+    it { expect { connector.new({ :root => "", :jndi_file => "", :ejb_service => "" }) }.not_to raise_error }
   end
 
 
-  let(:ejb_connector) { ElFinder::Connector::EjbConnector.new(options) }
+  let(:ejb_connector) { connector.new(options) }
   let(:pathname) { ElFinder::ConnectionPathnames::EjbPathname.new(fake_ejb_service, options[:root], "/files/test")}
   let(:expected_hash) { "ejb_L2ZpbGVzL3Rlc3Q" }
 
@@ -86,12 +88,12 @@ describe ElFinder::Connector::EjbConnector do
   let(:expected_path) { "/test/test" }
   let(:validate_hash) { "ejb_L3Rlc3QvdGVzdA" }
 
-  context "#from_hash" do
+  describe '#from_hash' do
     it { expect(ejb_connector.from_hash(validate_hash).path.to_s).to eql(expected_path) }
   end
 
 
-  context "#tree" do
+  describe '#tree' do
     let(:expected_tree) do 
       {
         :name=>"EJB-Home", 
@@ -119,7 +121,7 @@ describe ElFinder::Connector::EjbConnector do
   end
 
 
-  context "#run" do
+  describe '#run' do
 
     let(:expected_response) do
       {
@@ -175,6 +177,6 @@ describe ElFinder::Connector::EjbConnector do
       it { expect(ejb_connector.run({:cmd => 'mkdir'})[1][:error]).to eql( "Invalid command 'mkdir'" ) }
     end
 
-  end # context "#run"
+  end # #run
 
 end

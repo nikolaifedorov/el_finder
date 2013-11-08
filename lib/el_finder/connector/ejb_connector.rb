@@ -163,6 +163,7 @@ module ElFinder
         end
 
         @response[:cwd] = cwd_for(target)
+
         @response[:cdc] = target.children.
                           sort_by{|e| e.basename.to_s.downcase}.
                           map{|e| cdc_for(e)}.compact

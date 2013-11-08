@@ -32,7 +32,7 @@ describe ElFinder::Connector::EjbAndOtherStorage do
 
   let(:file_null_object) do
     file = double('null object').as_null_object
-    file.stub(:getName) { "File1" }
+    file.stub(:getFileName) { "File1" }
 
     file
   end
