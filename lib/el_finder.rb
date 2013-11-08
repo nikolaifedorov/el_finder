@@ -28,6 +28,7 @@ require 'el_finder/connector/dropbox_storage'
 require 'el_finder/connector/ejb_connector'
 require 'el_finder/connector/ejb_and_other_storage'
 require 'el_finder/connector/rest_connector'
+require 'el_finder/connector/rest_and_other_storage'
 require 'el_finder/connector/connector_factory'
 
 require 'el_finder/action'
