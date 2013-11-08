@@ -24,15 +24,14 @@ module ElFinder
         :archivers => {},
         :extractors => {},
 
-        :home => 'EJB-Home',
+        :home => 'REST-Home',
         :default_perms => { :read => true, :write => true, :rm => true, :hidden => false },
         :perms => [],
         :volume_id => DRIVER_ID
       }
 
       # Initializes new instance.
-      # @param [Hash] options Instance options. :url and :root options are required.
-      # @option options [String] :url Entry point of ElFinder router.
+      # @param [Hash] options Instance options.
       # @option options [String] :root Root directory of ElFinder directory structure.
       # @see DEFAULT_OPTIONS
       def initialize(options)
@@ -68,7 +67,7 @@ module ElFinder
         if VALID_COMMANDS.include?(@params[:cmd])
 
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]).path : '.'
-          @target = ::ElFinder::ConnectionPathnames::EjbPathname.new(@service, @root.to_s, target_params)
+          @target = ::ElFinder::ConnectionPathnames::RestPathname.new(@service, @root.to_s, target_params)
 
           if params[:targets]
             @targets = @params[:targets].map{|t| from_hash(t)}
