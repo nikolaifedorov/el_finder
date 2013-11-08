@@ -31,8 +31,7 @@ module ElFinder
       }
 
       # Initializes new instance.
-      # @param [Hash] options Instance options. :url and :root options are required.
-      # @option options [String] :url Entry point of ElFinder router.
+      # @param [Hash] options Instance options.
       # @option options [String] :root Root directory of ElFinder directory structure.
       # @see DEFAULT_OPTIONS
       def initialize(options)
