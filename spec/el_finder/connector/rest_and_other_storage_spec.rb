@@ -8,60 +8,48 @@ describe ElFinder::Connector::EjbAndOtherStorage do
 
   let(:options) do
     {
-      :driver => 'ejb_and',
+      :driver => 'rest_and',
       :driver_other => 'local',
       :root => "/",
       :root_other => vroot,
       :url => 'elfinder_url',
-      :jndi_file => 'test_jndi_file.yml',
-      :ejb_service => 'test_ejb_service',
+      :rest_file => 'test_rest_file.yml',
      }
   end
 
 
-  let(:null_object) { double('null object').as_null_object }
+  let(:file) {
+    { 
+      'key' => "69ca003d-a482-49fc-8466-9896d5fa03e6",
+      'name' => "example2.gff",
+      'format' => "gff",
+      'size' => 0,
+      'nodeType' => "FILE",
+      'fullPath' => "/example2.gff",
+      'children' => nil,
+      'attributes' => nil
+    }
+  }
 
+  let(:folder) {
+    {
+      'key' => "d061f348-64a5-47cf-bad3-e273dd4e06a6",
+      'name' => "root",
+      'format' => nil,
+      'size' => 0,
+      'nodeType' => "FOLDER",
+      'fullPath' => "/",
+      'children' => [ file ],
+      'attributes' => []
+    }
+  }
 
-  let(:folder_null_object) do
-    folder = double('null object').as_null_object
-    folder.stub(:getName) { "Folder1" }
+  let(:fake_rest_service) do
+    service = double(RestFilesystem)
+    service.stub(:get) { folder }
 
-    folder
-  end
-
-
-  let(:file_null_object) do
-    file = double('null object').as_null_object
-    file.stub(:getFileName) { "File1" }
-
-    file
-  end
-
-
-  let(:fake_ejb_service) do
-    ejb_service = double('JavaEjbServiceFake')
-    ejb_service.stub(:findFolder) { null_object }
-    
-    ejb_service.stub(:getFolders) { [] }
-    ejb_service.stub(:getFolders).with(null_object) { [ folder_null_object ] }
-
-    ejb_service.stub(:getFiles) { [] }
-    ejb_service.stub(:getFiles).with(null_object) { [ file_null_object ] }
-
-    ejb_service
-  end
-
-
-  let(:fake_ejb_context) do
-    ejb_context = double('JavaEjbContexFake')
-    ejb_context.stub(:get_service) { fake_ejb_service }
-
-    ejb_context
-  end
-
-
-  def stub_ejb_context
-    ElFinder::Rejb.stub(:context) { fake_ejb_context }
+    RestFilesystem.stub(:init).and_return(service)
+    service
   end
 
 
@@ -69,42 +57,34 @@ describe ElFinder::Connector::EjbAndOtherStorage do
     FileUtils.mkdir_p(vroot)
     FileUtils.cp_r File.expand_path("../../../test/files/", File.dirname(__FILE__)), vroot
 
-    stub_ejb_context
+    fake_rest_service
   end
+
 
   after do
     FileUtils.rm_rf(vroot)
     FileUtils.rm_rf("tmp")
   end
 
+  let(:connector) { ElFinder::Connector::RestAndOtherStorage }
 
-  context "initialize" do
-    it { expect { ElFinder::Connector::EjbAndOtherStorage.new(options) }.not_to raise_error }
+  describe "initialize" do
+    it { expect { connector.new(options) }.not_to raise_error }
 
-    it { expect { ElFinder::Connector::EjbAndOtherStorage.new({}) }.to raise_error(ArgumentError, "Missing required :driver_other option") }
-    it { expect { ElFinder::Connector::EjbAndOtherStorage.new({:driver_other => ""}) }.to raise_error(ArgumentError, "Missing required :root_other option") }
+    it { expect { connector.new({}) }.to raise_error(ArgumentError, "Missing required :driver_other option") }
+    it { expect { connector.new({:driver_other => ""}) }.to raise_error(ArgumentError, "Missing required :root_other option") }
   end
 
 
-  let(:connector) { ElFinder::Connector::EjbAndOtherStorage.new(options) }
+  let(:rest_and_other_connector) { connector.new(options) }
 
-  context "#tree" do
+  describe '#tree' do
     let(:expected_tree) do 
       {
-        :name=>"EJB-and-Other-Home", 
-        :hash=>"EaO_Lg", 
-        :dirs=> [
-          {
-            :name=>"Folder1", 
-            :hash=>"EaO_Rm9sZGVyMQ", 
-            :dirs=>[], 
-            :read=>true, 
-            :write=>true, 
-            :rm=>true, 
-            :hidden=>false
-          }
-        ], 
-        :volumeid=>"EaO", 
+        :name=>"REST-and-Other-Home", 
+        :hash=>"RaO_Lg", 
+        :dirs=> [], 
+        :volumeid=>"RaO", 
         :read=>true, 
         :write=>true, 
         :rm=>true, 
@@ -112,11 +92,11 @@ describe ElFinder::Connector::EjbAndOtherStorage do
       }
     end
 
-    it { expect(connector.tree).to eql(expected_tree) }
+    it { expect(rest_and_other_connector.tree).to eql(expected_tree) }
   end
 
 
-  context "#run" do
+  describe "#run" do
 
     context "cmd 'open'" do
 
@@ -124,8 +104,8 @@ describe ElFinder::Connector::EjbAndOtherStorage do
         {
           :cdc => [
             {
-              :name=>"File1", 
-              :hash=>"EaO_RmlsZTE", 
+              :name=>"example2.gff", 
+              :hash=>"RaO_ZXhhbXBsZTIuZ2Zm", 
               :date=>0, 
               :read=>true, 
               :write=>true, 
@@ -133,25 +113,14 @@ describe ElFinder::Connector::EjbAndOtherStorage do
               :hidden=>false, 
               :size=>0, 
               :mime=>"unknown/unknown", 
-              :url=>"elfinder_url/File1"
-            }, 
-            {
-              :name=>"Folder1",
-              :hash=>"EaO_Rm9sZGVyMQ",
-              :date=>0,
-              :read=>true,
-              :write=>true,
-              :rm=>true,
-              :hidden=>false,
-              :size=>0,
-              :mime=>"directory"
+              :url=>"elfinder_url/example2.gff"
             }
           ],
           :cwd => {
             :name=>".",
-            :hash=>"EaO_Lg",
+            :hash=>"RaO_Lg",
             :mime=>"directory",
-            :rel=> "EJB-and-Other-Home",
+            :rel=>"REST-and-Other-Home",
             :size=>0,
             :date=>0,
             :read=>true,
@@ -165,8 +134,10 @@ describe ElFinder::Connector::EjbAndOtherStorage do
         }
       end
 
-      it { expect(connector.run({:cmd => 'open', :init => 'true', :target => ''})[1]).to eql( expected_response ) }
-    end # context "cmd 'open'"
+      let(:open_cmd_params) { {:cmd => 'open', :init => 'true', :target => ''} }
+
+      it { expect(rest_and_other_connector.run( open_cmd_params )[1]).to eql( expected_response ) }
+    end # cmd 'open'
 
 
     context "cmd 'mkdir'" do
@@ -178,7 +149,7 @@ describe ElFinder::Connector::EjbAndOtherStorage do
             :name=>".",
             :hash=>"l_Lg",
             :mime=>"directory",
-            :rel=>"EJB-and-Other-Home",
+            :rel=>"REST-and-Other-Home",
             :size=>0,
             :date => "",
             # :date=>"2013-10-11 18:19:39 +0400",
@@ -214,7 +185,7 @@ describe ElFinder::Connector::EjbAndOtherStorage do
             }
           ],
           :tree=>{
-            :name=>"EJB-and-Other-Home",
+            :name=>"REST-and-Other-Home",
             :hash=>"l_Lg",
             :dirs=>[
               {
@@ -258,14 +229,14 @@ describe ElFinder::Connector::EjbAndOtherStorage do
       let(:cmd_mkdir) { { :cmd => 'mkdir', :current => "EaO_Lg", :name => 'dir1'} }
 
       it do
-        response = connector.run(cmd_mkdir)[1]
+        response = rest_and_other_connector.run(cmd_mkdir)[1]
         response[:cwd][:date] = ""
         response[:cdc].each { |item| item[:date] = "" }
 
         expect(response).to eql( expected_response )
       end
-    end # context "cmd 'mkdir'"
+    end # cmd 'mkdir'
 
-  end # context "#run"
+  end # #run
 
 end

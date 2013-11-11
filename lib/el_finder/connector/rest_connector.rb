@@ -4,10 +4,10 @@ module ElFinder
 
   module Connector
   
-    # Represents ElFinder connector to EJB service.
-    class EjbConnector < AbstractConnector
+    # Represents ElFinder connector to REST service.
+    class RestConnector < AbstractConnector
 
-      DRIVER_ID = "ejb"
+      DRIVER_ID = "rest"
 
       # Valid commands to run.
       # @see #run
@@ -24,7 +24,7 @@ module ElFinder
         :archivers => {},
         :extractors => {},
 
-        :home => 'EJB-Home',
+        :home => 'REST-Home',
         :default_perms => { :read => true, :write => true, :rm => true, :hidden => false },
         :perms => [],
         :volume_id => DRIVER_ID
@@ -39,16 +39,13 @@ module ElFinder
 
         raise(ArgumentError, "Missing required :root option") unless @options.key?(:root)
 
-        raise(ArgumentError, "Missing required :jndi_file option") unless @options.key?(:jndi_file)
-        raise(ArgumentError, "Missing required :ejb_service option") unless @options.key?(:ejb_service)
+        raise(ArgumentError, "Missing required :rest_file option") unless @options.key?(:rest_file)
 
         raise(ArgumentError, "Mime Handler is invalid") unless mime_handler.respond_to?(:for)
 
+        @service = RestFilesystem.init(@options[:rest_file].to_s)
 
-        @context = ElFinder::Rejb.context(@options[:jndi_file])
-        @service = @context.get_service(@options[:ejb_service])
-
-        @root = ::ElFinder::ConnectionPathnames::EjbPathname.new(@service, @options[:root].to_s)
+        @root = ::ElFinder::ConnectionPathnames::RestPathname.new(@service, @options[:root].to_s)
 
         @options[:volume_id] = "#{@options[:volume_id]}#{@options[:index]}" unless @options[:index] == 0
 
@@ -70,7 +67,7 @@ module ElFinder
         if VALID_COMMANDS.include?(@params[:cmd])
 
           target_params = (@params[:target] and !@params[:target].empty?) ? from_hash(@params[:target]).path : '.'
-          @target = ::ElFinder::ConnectionPathnames::EjbPathname.new(@service, @root.to_s, target_params)
+          @target = ::ElFinder::ConnectionPathnames::RestPathname.new(@service, @root.to_s, target_params)
 
           if params[:targets]
             @targets = @params[:targets].map{|t| from_hash(t)}
@@ -163,7 +160,6 @@ module ElFinder
         end
 
         @response[:cwd] = cwd_for(target)
-
         @response[:cdc] = target.children.
                           sort_by{|e| e.basename.to_s.downcase}.
                           map{|e| cdc_for(e)}.compact
@@ -290,7 +286,7 @@ module ElFinder
         @response[:error] = "Command '#{@params[:cmd]}' not yet implemented"
       end # of command_not_implemented
 
-    end # of class EJB
+    end # of class Rest
 
   end
 end

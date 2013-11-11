@@ -19,14 +19,17 @@ Gem::Specification.new do |s|
   # s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency('image_size', '>= 1.0.0')
-  s.add_dependency('dropbox-sdk', '>= 1.6.1')
-  s.add_dependency('net-ftp-list', '>= 3.2.5')
+  s.add_dependency('image_size',    '>= 1.0.0')
+  s.add_dependency('dropbox-sdk',   '>= 1.6.1')
+  s.add_dependency('net-ftp-list',  '>= 3.2.5')
+  s.add_dependency('i18n',          '>= 0.6.5')
+  s.add_dependency('activesupport-inflector', '>= 0.1.0')
+  s.add_dependency('settingslogic', '>= 2.0.9')
+  s.add_dependency('rest-client',   '>= 1.6.7')
 
   s.add_development_dependency "rspec"
-  s.add_development_dependency('yard', '~> 0.8.1')
+  s.add_development_dependency('yard',      '~> 0.8.1')
   s.add_development_dependency('redcarpet', '~> 2.1.1')
 
   s.requirements << 'ImageMagick'
-
 end
