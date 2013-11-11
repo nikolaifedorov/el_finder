@@ -7,6 +7,8 @@ class RestFilesystem
     def init(rest_file_options)
       RestSettings.init(rest_file_options)
       const_set('SERVER_URL', RestSettings.filesystem_server)
+
+      self
     end
 
 
